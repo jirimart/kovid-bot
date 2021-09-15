@@ -1,7 +1,7 @@
 const dotenv = require('dotenv').config().parsed;
 const fetch = require('node-fetch');
 
-const sendData = async (discordHook) => {
+const sendData = async () => {
   try {
     const kovidDataResponse = await fetch("https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/zakladni-prehled.json", {"method":"GET"});
     const kovidData = await kovidDataResponse.json();
@@ -9,7 +9,10 @@ const sendData = async (discordHook) => {
     const kovid = kovidData.data[0];
 
     const { Webhook, MessageBuilder } = require('discord-webhook-node');
-    const hook = new Webhook(discordHook);
+
+    const afrika3 = new Webhook(dotenv.AFRIKA3_HOOK);
+    const znasilneniSlinivky = new Webhook(dotenv.ZNASILNENI_SLINIVKY_HOOK);
+    const testServer = new Webhook(dotenv.TEST_SERVER_HOOK);
     
     const embed = new MessageBuilder()
       .setColor('#FF0000')
@@ -19,21 +22,19 @@ const sendData = async (discordHook) => {
       .addField('Aktuálně hospitalizovaní', `${kovid.aktualne_hospitalizovani}`, true)
       .setTimestamp();
     
-    hook.send(embed);
+    afrika3.send(embed);
+    znasilneniSlinivky.send(embed);
+    testServer.send(embed);
   } catch (error) {
 
   }
 }
 
-// sendData(dotenv.AFRIKA3_HOOK);
-sendData(dotenv.TEST_SERVER_HOOK);
-// sendData(dotenv.ZNASILNENI_SLINIVKY_HOOK);
+sendData();
 
 const CronJob = require('cron').CronJob;
 const job = new CronJob('00 20 8 * * 0-6', function() {
-  sendData(dotenv.AFRIKA3_HOOK);
-  sendData(dotenv.TEST_SERVER_HOOK);
-  sendData(dotenv.ZNASILNENI_SLINIVKY_HOOK);
+  sendData();
   }, function () {
     console.log("Odesláno");
   },
