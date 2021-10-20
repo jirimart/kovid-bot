@@ -39,7 +39,8 @@ const sendData = async () => {
       .addField('Nově nakažení', `${kovid.potvrzene_pripady_vcerejsi_den}`, true)
       .addField('Aktuálně hospitalizovaní', `${kovid.aktualne_hospitalizovani}`, true)
       .addField('\u200B', '\u200B', false)
-      .addField('Reprodukční číslo', `${reprodukcniCislo.toFixed(2)}`, true)
+      .addField('Reprodukční číslo', `${reproProcento.toFixed(2)}`, true)
+      .addField('Nárust v procentech', `${reprodukcniCislo.toFixed(2)}%`, true)
       .addField('Předpokládaný nárust za dnešek', `${Math.round(predpokladaneNakazeni)}`, true)
       .setTimestamp();
     
