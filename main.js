@@ -217,7 +217,7 @@ const sendData = async () => {
 }
 
 const CronJob = require('cron').CronJob;
-const job = new CronJob('00 20 8 * * 0-6', function() {
+const job = new CronJob('00 30 7 * * 0-6', function() {
   sendData();
   }, function () {
     console.log("Odesláno");
