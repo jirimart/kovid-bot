@@ -12,24 +12,43 @@ const sendData = async () => {
     const hospitalizaceDataResponse = await fetch(`https://onemocneni-aktualne.mzcr.cz/api/v3/hospitalizace?page=1&datum%5Bafter%5D=${covidDate}&apiToken=${dotenv.API_KEY}`, {"method":"GET", headers: {accept: 'application/json'}});
     const hospitalizaceData = await hospitalizaceDataResponse.json();
 
+    //console.log('Data hospitalizace: \n', hospitalizaceData)
+
     const incidenceDataResponse = await fetch(`https://onemocneni-aktualne.mzcr.cz/api/v3/incidence-7-14-cr?page=1&datum%5Bafter%5D=${covidDate}&apiToken=${dotenv.API_KEY}`, {"method":"GET", headers: {accept: 'application/json'}});
     const incidenceData = await incidenceDataResponse.json();
 
+    //console.log('Data Incidence: \n', incidenceData)
+    
     const zakladniPrehledDataResponse = await fetch(`https://onemocneni-aktualne.mzcr.cz/api/v3/zakladni-prehled?page=1&apiToken=${dotenv.API_KEY}`, {"method":"GET", headers: {accept: 'application/json'}});
     const zakladniPrehledData = await zakladniPrehledDataResponse.json();
 
+    //console.log('Základní přehled: \n', zakladniPrehledData)
+    
     const ockovaniPozitivniDataResponse = await fetch(`https://onemocneni-aktualne.mzcr.cz/api/v3/ockovani-pozitivni?page=1&datum%5Bafter%5D=${covidDate}&apiToken=${dotenv.API_KEY}`, {"method":"GET", headers: {accept: 'application/json'}});
     const ockovaniPozitivniData = await ockovaniPozitivniDataResponse.json();
 
+    //console.log('Data Očkovaní pozitivni: \n', ockovaniPozitivniData)
+    
     const tynecNadLabemObceDataResponse = await fetch(`https://onemocneni-aktualne.mzcr.cz/api/v3/obce?page=1&datum%5Bbefore%5D=${covidYesterday}&datum%5Bafter%5D=${covidYesterday}&obec_nazev=T%C3%BDnec%20nad%20Labem&apiToken=${dotenv.API_KEY}`, {"method":"GET", headers: {accept: 'application/json'}});
     const tynecNadLabemObceData = await tynecNadLabemObceDataResponse.json();
 
+    //console.log('Data Tynec nad Labem: \n', tynecNadLabemObceData)
+    
     const kolinObceDataResponse = await fetch(`https://onemocneni-aktualne.mzcr.cz/api/v3/obce?page=1&datum%5Bbefore%5D=${covidYesterday}&datum%5Bafter%5D=${covidYesterday}&obec_nazev=Kol%C3%ADn&apiToken=${dotenv.API_KEY}`, {"method":"GET", headers: {accept: 'application/json'}});
     const kolinObceData = await kolinObceDataResponse.json();
 
+    //console.log('Data Kolín: \n', kolinObceData)
+    
     const nymburkObceDataResponse = await fetch(`https://onemocneni-aktualne.mzcr.cz/api/v3/obce?page=1&datum%5Bbefore%5D=${covidYesterday}&datum%5Bafter%5D=${covidYesterday}&obec_nazev=Nymburk&apiToken=${dotenv.API_KEY}`, {"method":"GET", headers: {accept: 'application/json'}});
     const nymburkObceData = await nymburkObceDataResponse.json();
 
+    //console.log('Data Nymburk: \n', nymburkObceData)
+
+    const reinfekceResponse = await fetch(`https://onemocneni-aktualne.mzcr.cz/api/v3/nakazeni-reinfekce?page=1&datum%5Bbefore%5D=${covidYesterday}&datum%5Bafter%5D=${covidDate}&apiToken=${dotenv.API_KEY}`, {"method":"GET", headers: {accept: 'application/json'}});
+    const reinfekceData = await reinfekceResponse.json();
+
+    //console.log(`Reinfekce data (${covidYesterday}): \n`, reinfekceData, '\n', reinfekceData[6]);
+    
     const { Webhook, MessageBuilder } = require('discord-webhook-node');
 
     const QuickChart = require('quickchart-js');
@@ -38,10 +57,10 @@ const sendData = async () => {
     nakazeniZa7DniChart
       .setConfig({
         type: 'line',
-        data: { labels: [`${ockovaniPozitivniData[0].datum}`, `${ockovaniPozitivniData[1].datum}`,`${ockovaniPozitivniData[2].datum}`,`${ockovaniPozitivniData[3].datum}`,`${ockovaniPozitivniData[4].datum}`,`${ockovaniPozitivniData[5].datum}`,`${ockovaniPozitivniData[6].datum}`],
+        data: { labels: [`${reinfekceData[0].datum}`, `${reinfekceData[1].datum}`,`${reinfekceData[2].datum}`,`${reinfekceData[3].datum}`,`${reinfekceData[4].datum}`,`${reinfekceData[5].datum}`,`${reinfekceData[6].datum}`],
                 datasets: [
                   { label: 'Počet nově nakažených za den za posledních 7 dní',
-                    data: [`${ockovaniPozitivniData[0].pozitivni_celkem}`, `${ockovaniPozitivniData[1].pozitivni_celkem}`,`${ockovaniPozitivniData[2].pozitivni_celkem}`,`${ockovaniPozitivniData[3].pozitivni_celkem}`,`${ockovaniPozitivniData[4].pozitivni_celkem}`,`${ockovaniPozitivniData[5].pozitivni_celkem}`,`${ockovaniPozitivniData[6].pozitivni_celkem}`],
+                    data: [`${reinfekceData[0].nove_pripady + reinfekceData[0].nove_reinfekce}`, `${reinfekceData[1].nove_pripady + reinfekceData[1].nove_reinfekce}`,`${reinfekceData[2].nove_pripady + reinfekceData[2].nove_reinfekce}`,`${reinfekceData[3].nove_pripady + reinfekceData[3].nove_reinfekce}`,`${reinfekceData[4].nove_pripady + reinfekceData[4].nove_reinfekce}`,`${reinfekceData[5].nove_pripady + reinfekceData[5].nove_reinfekce}`,`${reinfekceData[6].nove_pripady + reinfekceData[6].nove_reinfekce}`],
                     fill: false,
                     borderColor: 'rgb(255, 0, 0)',
                     backgroundColor: 'rgba(255, 0, 0, 0.5)'
@@ -95,11 +114,21 @@ const sendData = async () => {
       .setColor('#FF0000')
       .setTitle(`Základní přehled za ${zakladniPrehledData[0].potvrzene_pripady_vcerejsi_den_datum}`)
       .setThumbnail('https://upload.wikimedia.org/wikipedia/commons/8/82/SARS-CoV-2_without_background.png')
-      .addField('Nově nakažení', `${zakladniPrehledData[0].potvrzene_pripady_vcerejsi_den}`, true)
+      .addField('Nově nakažení celkem', `${ (reinfekceData[6].nove_pripady) + (reinfekceData[6].nove_reinfekce)}`, true)
       .addField('Aktivní případy', `${zakladniPrehledData[0].aktivni_pripady}`, true)
-      .addField('7denní incidence na 100 tisíc obyvatel', `${incidenceData[6].incidence_7_100000}`, false)
+
+      .addField('\u200B', '\u200B', false)
+      
+      .addField('Nově nakažení', `${reinfekceData[6].nove_pripady}`, true)
+      .addField('Reinfekce', `${reinfekceData[6].nove_reinfekce}`, true)
+
+      .addField('\u200B', '\u200B', false)
+
+      .addField('7denní incidence na 100 tisíc obyvatel', `${incidenceData[6].incidence_7_100000}`, true)
       // .addField('\u200B', '\u200B', false)
       
+      .addField('\u200B', '\u200B', false)
+
       .addField('Úmrtí celkem', `${zakladniPrehledData[0].umrti}`, true)
       .addField('Očkováno lidí', `${zakladniPrehledData[0].vykazana_ockovani_vcerejsi_den}`, true)
       .setImage(await nakazeniZa7DniChart.getUrl())
@@ -153,67 +182,43 @@ const sendData = async () => {
     // console.log(ockovaniPozitivniData)
     // console.log(tynecNadLabemObceData)
 
-    const afrika3 = new Webhook(dotenv.AFRIKA3_HOOK);
-    const znasilneniSlinivky = new Webhook(dotenv.ZNASILNENI_SLINIVKY_HOOK);
-    const testServer = new Webhook(dotenv.TEST_SERVER_HOOK);
-    const normalniLide = new Webhook(dotenv.NORMALNI_LIDE);
 
-    function sleep(ms) {
-      return new Promise((resolve) => {
-        setTimeout(resolve, ms);
-      });
-    }
     
-    testServer.send(zakladniPrehledZaDenEmbed);
-    await sleep(1000);
-    testServer.send(prehledSituaceVNemocnicichZaDenEmbed)
-    await sleep(1000);
-    testServer.send(ostatniPrehledZaDenEmbed)
-    await sleep(1000);
-    testServer.send(situaceVTynciNadLabemZaDenEmbed)
-    await sleep(1000);
-    testServer.send(situaceKolineZaDenEmbed)
-    await sleep(1000);
-    testServer.send(situaceVNymburkuZaDenEmbed)
+    sendDataToServer (zakladniPrehledZaDenEmbed, prehledSituaceVNemocnicichZaDenEmbed, ostatniPrehledZaDenEmbed, situaceVTynciNadLabemZaDenEmbed, situaceKolineZaDenEmbed, situaceVNymburkuZaDenEmbed)
     
-    await sleep(1000)
-
-    afrika3.send(zakladniPrehledZaDenEmbed);
-    await sleep(1000);
-    afrika3.send(prehledSituaceVNemocnicichZaDenEmbed)
-    await sleep(1000);
-    afrika3.send(ostatniPrehledZaDenEmbed)
-    await sleep(1000);
-    afrika3.send(situaceVNymburkuZaDenEmbed)
-    await sleep(1000);
-    afrika3.send(situaceKolineZaDenEmbed)
-
-    await sleep(1000)
-
-    znasilneniSlinivky.send(zakladniPrehledZaDenEmbed);
-    await sleep(1000);
-    znasilneniSlinivky.send(prehledSituaceVNemocnicichZaDenEmbed)
-    await sleep(1000);
-    znasilneniSlinivky.send(ostatniPrehledZaDenEmbed)
-    await sleep(1000);
-    znasilneniSlinivky.send(situaceVTynciNadLabemZaDenEmbed)
-    await sleep(1000);
-    znasilneniSlinivky.send(situaceKolineZaDenEmbed)
-    
-    await sleep(1000)
-
-    normalniLide.send(zakladniPrehledZaDenEmbed);
-    await sleep(1000);
-    normalniLide.send(prehledSituaceVNemocnicichZaDenEmbed)
-    await sleep(1000);
-    normalniLide.send(ostatniPrehledZaDenEmbed)
-    await sleep(1000);
-    normalniLide.send(situaceVTynciNadLabemZaDenEmbed)
-    await sleep(1000);
-    normalniLide.send(situaceKolineZaDenEmbed)
   } catch (error) {
     console.log(error);
   }
+}
+
+const sendDataToServer = async(zakladniPrehledZaDenEmbed, prehledSituaceVNemocnicichZaDenEmbed, ostatniPrehledZaDenEmbed, situaceVTynciNadLabemZaDenEmbed, situaceKolineZaDenEmbed, situaceVNymburkuZaDenEmbed) =>   {
+  const { Webhook, MessageBuilder } = require('discord-webhook-node');
+  const sendServers = [
+    'AFRIKA3_HOOK',
+    'ZNASILNENI_SLINIVKY_HOOK',
+    'TEST_SERVER_HOOK',
+    'NORMALNI_LIDE',
+  ]
+  function sleep(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  }
+  sendServers.forEach(async (element) => {
+    const server = new Webhook(dotenv[element]);
+    server.send(zakladniPrehledZaDenEmbed);
+    await sleep(1000);
+    server.send(prehledSituaceVNemocnicichZaDenEmbed);
+    await sleep(1000);
+    server.send(ostatniPrehledZaDenEmbed);
+    await sleep(1000);
+    server.send(situaceVTynciNadLabemZaDenEmbed);
+    await sleep(1000);
+    server.send(situaceKolineZaDenEmbed);
+    await sleep(1000);
+    server.send(situaceVNymburkuZaDenEmbed);
+    await sleep(1000);
+  });
 }
 
 const CronJob = require('cron').CronJob;
